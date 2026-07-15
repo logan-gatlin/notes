@@ -45,15 +45,15 @@ export function NewNoteModal({ onClose, onCreated }: Props) {
   return (
     <Modal title="New Meeting Note" onClose={onClose}>
       {types.length === 0 ? (
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-gray-300">
           Create a meeting type first.
         </div>
       ) : (
         <div className="flex flex-col gap-3 text-sm">
           <label className="flex flex-col gap-1">
-            <span className="text-gray-600">Meeting type</span>
+            <span className="text-gray-400">Meeting type</span>
             <select
-              className="border border-gray-300 rounded px-2 py-1"
+              className="bg-gray-900 border border-gray-700 text-gray-100 rounded px-2 py-1 outline-none focus:border-emerald-500"
               value={meetingTypeId}
               onChange={(e) => setMeetingTypeId(e.target.value)}
             >
@@ -66,26 +66,26 @@ export function NewNoteModal({ onClose, onCreated }: Props) {
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-gray-600">Title (optional)</span>
+            <span className="text-gray-400">Title (optional)</span>
             <input
-              className="border border-gray-300 rounded px-2 py-1"
+              className="bg-gray-900 border border-gray-700 text-gray-100 placeholder-gray-500 rounded px-2 py-1 outline-none focus:border-emerald-500"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={selectedType?.name}
             />
           </label>
 
-          {error && <div className="text-red-600 text-xs">{error}</div>}
+          {error && <div className="text-red-400 text-xs">{error}</div>}
 
           <div className="flex justify-end gap-2 mt-1">
             <button
-              className="px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50"
+              className="px-3 py-1.5 rounded border border-gray-700 text-gray-200 hover:bg-gray-700"
               onClick={onClose}
             >
               Cancel
             </button>
             <button
-              className="px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+              className="px-3 py-1.5 rounded bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-50"
               onClick={submit}
               disabled={busy}
             >

@@ -20,13 +20,12 @@ export function EditorPane({ note }: { note: NoteEntry }) {
   const meetingTypes = useMeetingTypesStore((s) => s.types);
 
   const [body, setBody] = useState(note.body);
-  const [title, setTitle] = useState(note.metadata.title);
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [mode, setMode] = useState<ViewMode>("split");
 
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const latest = useRef({ body, title });
-  latest.current = { body, title };
+  const latest = useRef({ body });
+  latest.current = { body };
 
   const meetingTypeName = meetingTypes.find(
     (t) => t.id === note.metadata.meetingTypeId,
@@ -34,9 +33,8 @@ export function EditorPane({ note }: { note: NoteEntry }) {
 
   const flush = useCallback(async () => {
     setSaveState("saving");
-    const metadata = { ...note.metadata, title: latest.current.title };
     try {
-      await save(note.path, metadata, latest.current.body);
+      await save(note.path, note.metadata, latest.current.body);
       setSaveState("saved");
     } catch {
       setSaveState("dirty");
@@ -65,41 +63,33 @@ export function EditorPane({ note }: { note: NoteEntry }) {
   return (
     <div className="flex flex-col h-full">
       <MetadataBar
-        note={note}
+        note={{ ...note, body }}
         meetingTypeName={meetingTypeName}
         saveState={saveState}
-        onTitleChange={(t) => {
-          setTitle(t);
-          scheduleSave();
-        }}
       />
 
-      <div className="flex items-center gap-1 px-3 py-1 border-b border-gray-200 text-xs">
+      <div className="flex items-center gap-1 px-3 py-1 border-b border-gray-800 text-xs text-gray-300 bg-gray-900">
         {(["edit", "split", "preview"] as ViewMode[]).map((m) => (
           <button
             key={m}
             className={
               "px-2 py-0.5 rounded " +
-              (mode === m ? "bg-gray-200 font-medium" : "hover:bg-gray-100")
+              (mode === m
+                ? "bg-emerald-500/15 text-emerald-300 font-medium"
+                : "hover:bg-gray-800")
             }
             onClick={() => setMode(m)}
           >
             {m[0].toUpperCase() + m.slice(1)}
           </button>
         ))}
-        <button
-          className="ml-auto px-2 py-0.5 rounded hover:bg-gray-100"
-          onClick={() => void flush()}
-        >
-          Save
-        </button>
       </div>
 
       <div className="flex-1 min-h-0 flex">
         {mode !== "preview" && (
           <div
             className={
-              (mode === "split" ? "w-1/2 border-r border-gray-200" : "w-full") +
+              (mode === "split" ? "w-1/2 border-r border-gray-800" : "w-full") +
               " min-h-0"
             }
           >

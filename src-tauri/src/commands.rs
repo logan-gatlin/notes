@@ -140,6 +140,16 @@ pub fn write_note(path: String, metadata: NoteMetadata, body: String) -> CmdResu
 }
 
 #[tauri::command]
+pub fn set_archived(
+    state: State<AppState>,
+    path: String,
+    archived: bool,
+) -> CmdResult<NoteEntry> {
+    let root = require_root(&state)?;
+    fsstore::set_archived(&root, Path::new(&path), archived).map_err(err)
+}
+
+#[tauri::command]
 pub fn delete_note(path: String) -> CmdResult<()> {
     fsstore::delete_note(Path::new(&path)).map_err(err)
 }

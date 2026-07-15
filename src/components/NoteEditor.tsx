@@ -49,14 +49,36 @@ export function NoteEditor({ initialValue, onChange }: NoteEditorProps) {
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         EditorView.lineWrapping,
         updateListener,
-        EditorView.theme({
-          "&": { height: "100%", fontSize: "14px" },
-          ".cm-content": {
-            fontFamily:
-              "ui-monospace, SFMono-Regular, Menlo, Monaco, monospace",
+        EditorView.theme(
+          {
+            "&": {
+              height: "100%",
+              fontSize: "14px",
+              backgroundColor: "#0f1512",
+              color: "#e5e7eb",
+            },
+            ".cm-content": {
+              caretColor: "#34d399",
+              fontFamily:
+                "ui-monospace, SFMono-Regular, Menlo, Monaco, monospace",
+            },
+            "&.cm-focused .cm-cursor": { borderLeftColor: "#34d399" },
+            "&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
+              { backgroundColor: "#134e3a" },
+            ".cm-gutters": {
+              backgroundColor: "#0f1512",
+              color: "#4b5563",
+              border: "none",
+            },
+            ".cm-activeLine": { backgroundColor: "#18211d" },
+            ".cm-activeLineGutter": {
+              backgroundColor: "#18211d",
+              color: "#9ca3af",
+            },
+            ".cm-scroller": { overflow: "auto" },
           },
-          ".cm-scroller": { overflow: "auto" },
-        }),
+          { dark: true },
+        ),
       ],
     });
 

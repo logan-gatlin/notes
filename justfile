@@ -20,6 +20,24 @@ setup-ubuntu:
         libssl-dev \
         libayatana-appindicator3-dev \
         pkg-config
+    npm install
+
+# Install Tauri v2 system dependencies (Arch Linux)
+setup-arch:
+    sudo pacman -Syu --needed \
+        webkit2gtk-4.1 \
+        base-devel \
+        curl \
+        wget \
+        file \
+        openssl \
+        gtk3 \
+        libayatana-appindicator \
+        librsvg \
+        xdotool \
+        dbus \
+        pkgconf
+    npm install
 
 # Install JS dependencies
 install:

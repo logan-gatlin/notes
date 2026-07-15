@@ -9,7 +9,14 @@ body,
   margin: 0;
 }
 
-/* Minimal readable defaults for the preview pane (no theming pass in v1). */
+/* Dark theme base. */
+body {
+  background-color: #0f1512;
+  color: #e5e7eb;
+  color-scheme: dark;
+}
+
+/* Minimal readable defaults for the preview pane (dark themed, green accents). */
 .markdown-preview h1 {
   font-size: 1.5rem;
   font-weight: 700;
@@ -39,17 +46,17 @@ body,
   margin: 0.4em 0;
 }
 .markdown-preview a {
-  color: #2563eb;
+  color: #34d399;
   text-decoration: underline;
 }
 .markdown-preview code {
-  background: #f3f4f6;
+  background: #1c2621;
   padding: 0.1em 0.3em;
   border-radius: 3px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
 }
 .markdown-preview pre {
-  background: #f3f4f6;
+  background: #1c2621;
   padding: 0.75em;
   border-radius: 6px;
   overflow: auto;
@@ -59,9 +66,9 @@ body,
   padding: 0;
 }
 .markdown-preview blockquote {
-  border-left: 3px solid #d1d5db;
+  border-left: 3px solid #34d399;
   padding-left: 0.8em;
-  color: #4b5563;
+  color: #9ca3af;
   margin: 0.4em 0;
 }
 .markdown-preview table {
@@ -70,6 +77,6 @@ body,
 }
 .markdown-preview th,
 .markdown-preview td {
-  border: 1px solid #d1d5db;
+  border: 1px solid #374151;
   padding: 0.3em 0.6em;
 }

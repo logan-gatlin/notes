@@ -108,6 +108,7 @@ mod tests {
             end: Some(DateTime::parse_from_rfc3339("2026-07-09T14:30:00-04:00").unwrap()),
             created_at: DateTime::parse_from_rfc3339("2026-07-09T13:52:11-04:00").unwrap(),
             source: NoteSource::Auto,
+            archived: None,
         }
     }
 

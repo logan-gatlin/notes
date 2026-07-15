@@ -8,6 +8,7 @@ export interface NoteMetadata {
   end?: string | null;
   createdAt: string;
   source: NoteSource;
+  archived?: boolean;
 }
 
 export interface NoteEntry {

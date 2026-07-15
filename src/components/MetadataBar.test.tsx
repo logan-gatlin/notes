@@ -1,12 +1,15 @@
-import { describe, expect, it, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
 import { MetadataBar } from "./MetadataBar";
 import type { NoteEntry } from "../lib/types";
 
-function note(overrides: Partial<NoteEntry["metadata"]> = {}): NoteEntry {
+function note(
+  overrides: Partial<NoteEntry["metadata"]> = {},
+  body = "",
+): NoteEntry {
   return {
     path: "/n.md",
-    body: "",
+    body,
     metadata: {
       id: "1",
       title: "Weekly Sync",
@@ -18,24 +21,23 @@ function note(overrides: Partial<NoteEntry["metadata"]> = {}): NoteEntry {
 }
 
 describe("MetadataBar", () => {
-  it("allows editing the title for manual notes", () => {
-    const onTitleChange = vi.fn();
+  it("titles a meeting note by its date", () => {
+    render(<MetadataBar note={note()} saveState="saved" />);
+    expect(screen.getByText("July 9")).toBeInTheDocument();
+  });
+
+  it("titles a misc note by its leading h1", () => {
     render(
       <MetadataBar
-        note={note()}
-        onTitleChange={onTitleChange}
+        note={note({ source: "misc" }, "# My Idea\n\nbody")}
         saveState="saved"
       />,
     );
-    const input = screen.getByPlaceholderText("Untitled note");
-    fireEvent.change(input, { target: { value: "Renamed" } });
-    expect(onTitleChange).toHaveBeenCalledWith("Renamed");
+    expect(screen.getByText("My Idea")).toBeInTheDocument();
   });
 
   it("shows the save state", () => {
-    render(
-      <MetadataBar note={note()} onTitleChange={vi.fn()} saveState="saving" />,
-    );
+    render(<MetadataBar note={note()} saveState="saving" />);
     expect(screen.getByText("Saving…")).toBeInTheDocument();
   });
 });

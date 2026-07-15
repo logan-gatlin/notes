@@ -41,6 +41,10 @@ export const writeNote = (
   body: string,
 ) => invoke<void>("write_note", { path, metadata, body });
 
+/** Move a note into/out of the archive folder. Returns the note at its new path. */
+export const setArchived = (path: string, archived: boolean) =>
+  invoke<NoteEntry>("set_archived", { path, archived });
+
 export const deleteNote = (path: string) =>
   invoke<void>("delete_note", { path });
 

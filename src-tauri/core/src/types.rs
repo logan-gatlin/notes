@@ -28,6 +28,9 @@ pub struct NoteMetadata {
     pub end: Option<DateTime<FixedOffset>>,
     pub created_at: DateTime<FixedOffset>,
     pub source: NoteSource,
+    /// Whether the note has been archived. Omitted from frontmatter when unset.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub archived: Option<bool>,
 }
 
 /// A fully parsed note: structured metadata + raw markdown body.
