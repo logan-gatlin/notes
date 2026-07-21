@@ -40,8 +40,40 @@ setup-arch:
     npm install
 
 # Install JS dependencies
-install:
+deps:
     npm install
+
+# Build the release app and install it to your system (user-level, no sudo)
+install:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Build only the binary (skip bundling: AppImage/linuxdeploy is not needed
+    # for a user-level install and can fail scanning restricted PATH entries).
+    npm run tauri build -- --no-bundle
+    bin="src-tauri/target/release/meeting-notes"
+    [ -f "$bin" ] || { echo "error: $bin not found (build failed?)" >&2; exit 1; }
+    install -Dm755 "$bin" "$HOME/.local/bin/meeting-notes"
+    install -Dm644 src-tauri/icons/128x128.png \
+        "$HOME/.local/share/icons/hicolor/128x128/apps/meeting-notes.png"
+    gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
+    desktop="$HOME/.local/share/applications/meeting-notes.desktop"
+    mkdir -p "$(dirname "$desktop")"
+    # Use an absolute Exec path: GNOME's launcher does not always have
+    # ~/.local/bin on PATH, so a bare "meeting-notes" can silently fail to run.
+    # StartupWMClass lets GNOME match the running window to this launcher icon.
+    printf '%s\n' \
+        '[Desktop Entry]' \
+        'Type=Application' \
+        'Name=Meeting Notes' \
+        'Comment=Take markdown notes on recurring meetings' \
+        "Exec=$HOME/.local/bin/meeting-notes" \
+        'Icon=meeting-notes' \
+        'Terminal=false' \
+        'StartupWMClass=meeting-notes' \
+        'Categories=Office;Utility;' > "$desktop"
+    update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
+    echo "Installed to ~/.local/bin/meeting-notes"
+    echo "Launch 'Meeting Notes' from the GNOME app grid (or run 'meeting-notes' if ~/.local/bin is on PATH)."
 
 # Run the desktop app in dev mode
 dev:

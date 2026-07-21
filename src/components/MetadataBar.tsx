@@ -1,10 +1,12 @@
 import type { NoteEntry } from "../lib/types";
-import { formatTimeRange, noteTitle } from "../lib/format";
+import { noteTitle, toDateInputValue } from "../lib/format";
 
 interface MetadataBarProps {
   note: NoteEntry;
   meetingTypeName?: string;
   saveState: "saved" | "saving" | "dirty";
+  /** Set the note's date (YYYY-MM-DD); backdates title, sort, and frontmatter. */
+  onDateChange?: (dateStr: string) => void;
 }
 
 const sourceLabel: Record<string, string> = {
@@ -17,8 +19,10 @@ export function MetadataBar({
   note,
   meetingTypeName,
   saveState,
+  onDateChange,
 }: MetadataBarProps) {
   const { metadata } = note;
+  const dateValue = toDateInputValue(metadata.start ?? metadata.createdAt);
 
   return (
     <div className="border-b border-gray-800 px-4 py-2 flex flex-col gap-1 bg-gray-800/50">
@@ -39,8 +43,16 @@ export function MetadataBar({
           {sourceLabel[metadata.source] ?? metadata.source}
         </span>
         {meetingTypeName && <span>{meetingTypeName}</span>}
-        {metadata.start && (
-          <span>{formatTimeRange(metadata.start, metadata.end)}</span>
+        {metadata.source !== "misc" && (
+          <label className="flex items-center gap-1" title="Change note date">
+            <span>Date</span>
+            <input
+              type="date"
+              className="bg-gray-900 border border-gray-700 text-gray-200 rounded px-1.5 py-0.5 outline-none focus:border-emerald-500"
+              value={dateValue}
+              onChange={(e) => onDateChange?.(e.target.value)}
+            />
+          </label>
         )}
       </div>
     </div>

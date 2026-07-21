@@ -3,6 +3,7 @@ import type { NoteEntry } from "../lib/types";
 import { NoteEditor } from "./NoteEditor";
 import { NotePreview } from "./NotePreview";
 import { MetadataBar } from "./MetadataBar";
+import { setDatePreservingTime } from "../lib/format";
 import { useNotesStore } from "../state/notesStore";
 import { useMeetingTypesStore } from "../state/meetingTypesStore";
 
@@ -20,26 +21,27 @@ export function EditorPane({ note }: { note: NoteEntry }) {
   const meetingTypes = useMeetingTypesStore((s) => s.types);
 
   const [body, setBody] = useState(note.body);
+  const [metadata, setMetadata] = useState(note.metadata);
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [mode, setMode] = useState<ViewMode>("split");
 
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const latest = useRef({ body });
-  latest.current = { body };
+  const latest = useRef({ body, metadata });
+  latest.current = { body, metadata };
 
   const meetingTypeName = meetingTypes.find(
-    (t) => t.id === note.metadata.meetingTypeId,
+    (t) => t.id === metadata.meetingTypeId,
   )?.name;
 
   const flush = useCallback(async () => {
     setSaveState("saving");
     try {
-      await save(note.path, note.metadata, latest.current.body);
+      await save(note.path, latest.current.metadata, latest.current.body);
       setSaveState("saved");
     } catch {
       setSaveState("dirty");
     }
-  }, [note.path, note.metadata, save]);
+  }, [note.path, save]);
 
   const scheduleSave = useCallback(() => {
     setSaveState("dirty");
@@ -48,6 +50,16 @@ export function EditorPane({ note }: { note: NoteEntry }) {
       void flush();
     }, AUTOSAVE_MS);
   }, [flush]);
+
+  const handleDateChange = useCallback(
+    (dateStr: string) => {
+      const start = setDatePreservingTime(dateStr, metadata.start);
+      if (!start) return;
+      setMetadata((m) => ({ ...m, start }));
+      scheduleSave();
+    },
+    [metadata.start, scheduleSave],
+  );
 
   // Flush pending changes on unmount / note switch.
   useEffect(() => {
@@ -63,9 +75,10 @@ export function EditorPane({ note }: { note: NoteEntry }) {
   return (
     <div className="flex flex-col h-full">
       <MetadataBar
-        note={{ ...note, body }}
+        note={{ ...note, body, metadata }}
         meetingTypeName={meetingTypeName}
         saveState={saveState}
+        onDateChange={handleDateChange}
       />
 
       <div className="flex items-center gap-1 px-3 py-1 border-b border-gray-800 text-xs text-gray-300 bg-gray-900">
