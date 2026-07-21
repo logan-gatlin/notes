@@ -45,15 +45,15 @@ export function NewNoteModal({ onClose, onCreated }: Props) {
   return (
     <Modal title="New Meeting Note" onClose={onClose}>
       {types.length === 0 ? (
-        <div className="text-sm text-gray-300">
+        <div className="text-sm text-ink-soft">
           Create a meeting type first.
         </div>
       ) : (
-        <div className="flex flex-col gap-3 text-sm">
-          <label className="flex flex-col gap-1">
-            <span className="text-gray-400">Meeting type</span>
+        <div className="flex flex-col gap-4 text-sm">
+          <label className="flex flex-col gap-1.5">
+            <span className="eyebrow">Meeting type</span>
             <select
-              className="bg-gray-900 border border-gray-700 text-gray-100 rounded px-2 py-1 outline-none focus:border-emerald-500"
+              className="bg-paper border border-line-strong text-ink rounded-md px-2.5 py-1.5 outline-none focus:border-accent transition-colors"
               value={meetingTypeId}
               onChange={(e) => setMeetingTypeId(e.target.value)}
             >
@@ -65,27 +65,27 @@ export function NewNoteModal({ onClose, onCreated }: Props) {
             </select>
           </label>
 
-          <label className="flex flex-col gap-1">
-            <span className="text-gray-400">Title (optional)</span>
+          <label className="flex flex-col gap-1.5">
+            <span className="eyebrow">Title (optional)</span>
             <input
-              className="bg-gray-900 border border-gray-700 text-gray-100 placeholder-gray-500 rounded px-2 py-1 outline-none focus:border-emerald-500"
+              className="bg-paper border border-line-strong text-ink placeholder-muted rounded-md px-2.5 py-1.5 outline-none focus:border-accent transition-colors"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={selectedType?.name}
             />
           </label>
 
-          {error && <div className="text-red-400 text-xs">{error}</div>}
+          {error && <div className="text-danger text-xs">{error}</div>}
 
           <div className="flex justify-end gap-2 mt-1">
             <button
-              className="px-3 py-1.5 rounded border border-gray-700 text-gray-200 hover:bg-gray-700"
+              className="px-3 py-1.5 rounded-md border border-line-strong text-ink-soft hover:bg-paper transition-colors"
               onClick={onClose}
             >
               Cancel
             </button>
             <button
-              className="px-3 py-1.5 rounded bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-50"
+              className="px-3 py-1.5 rounded-md bg-ink text-paper font-medium hover:bg-black disabled:opacity-50 transition-colors"
               onClick={submit}
               disabled={busy}
             >

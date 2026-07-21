@@ -6,7 +6,7 @@ export function MainView() {
   const selected = useNotesStore((s) => s.selected);
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full bg-paper text-ink">
       <Sidebar />
 
       {/* Editor column */}
@@ -14,8 +14,11 @@ export function MainView() {
         {selected ? (
           <EditorPane key={selected.path} note={selected} />
         ) : (
-          <div className="h-full flex items-center justify-center text-gray-500 text-sm">
-            Select or create a note.
+          <div className="h-full flex flex-col items-center justify-center gap-3 px-6 text-center">
+            <span className="eyebrow">No note open</span>
+            <p className="max-w-xs font-serif text-lg text-ink-soft">
+              Pick a note from the list, or start a new one to begin the record.
+            </p>
           </div>
         )}
       </div>

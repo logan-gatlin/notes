@@ -1,5 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import type {
+  AiAuthStatus,
+  AiConfig,
+  AiEditResponse,
   CreateNoteInput,
   MeetingType,
   MeetingTypeInput,
@@ -50,3 +53,41 @@ export const deleteNote = (path: string) =>
 
 export const searchNotes = (query: string) =>
   invoke<NoteEntry[]>("search_notes", { query });
+
+// Syntax highlighting -------------------------------------------------------
+export interface HighlightResult {
+  /** Pre-escaped inner HTML for a `<code>` element, with `hh-*` token spans. */
+  html: string;
+  /** Canonical language applied, or null when rendered as plain text. */
+  language: string | null;
+}
+
+/** Highlight a fenced code block via the tree-sitter backend. */
+export const highlightCode = (code: string, language?: string | null) =>
+  invoke<HighlightResult>("highlight_code", {
+    code,
+    language: language ?? null,
+  });
+
+// AI integration ------------------------------------------------------------
+export const getAiConfig = () => invoke<AiConfig | null>("get_ai_config");
+
+export const setAiConfig = (config: AiConfig | null) =>
+  invoke<void>("set_ai_config", { config });
+
+/**
+ * Send a note + instruction to the Cloudflare AI Gateway and return structured
+ * edits. `system` and `userContent` are built by the action registry
+ * (see src/lib/aiActions.ts).
+ */
+export const aiEdit = (system: string, userContent: string) =>
+  invoke<AiEditResponse>("ai_edit", { req: { system, userContent } });
+
+/** List model ids the configured gateway accepts (for the settings picker). */
+export const aiListModels = () => invoke<string[]>("ai_list_models");
+
+/** Force an interactive Cloudflare Access sign-in (opens the system browser). */
+export const aiLogin = () => invoke<void>("ai_login");
+
+/** Report cloudflared availability, whether AI is configured, and login state. */
+export const aiAuthStatus = () => invoke<AiAuthStatus>("ai_auth_status");

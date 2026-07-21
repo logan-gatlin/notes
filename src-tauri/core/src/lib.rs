@@ -13,4 +13,4 @@ pub mod types;
 pub use frontmatter::{parse_note, serialize_note, FrontmatterError};
 pub use search::note_matches;
 pub use slug::{slugify, unique_filename};
-pub use types::{Config, MeetingType, Note, NoteMetadata, NoteSource};
+pub use types::{AiConfig, Config, MeetingType, Note, NoteMetadata, NoteSource};

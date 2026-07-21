@@ -2,7 +2,7 @@ use crate::config;
 use crate::fsstore::{self, CreateNoteInput, NoteEntry};
 use crate::search;
 use crate::state::AppState;
-use notes_core::{slugify, MeetingType, NoteMetadata};
+use notes_core::{slugify, AiConfig, MeetingType, NoteMetadata};
 use serde::Deserialize;
 use std::path::{Path, PathBuf};
 use tauri::{AppHandle, State};
@@ -158,4 +158,23 @@ pub fn delete_note(path: String) -> CmdResult<()> {
 pub fn search_notes(state: State<AppState>, query: String) -> CmdResult<Vec<NoteEntry>> {
     let root = require_root(&state)?;
     search::search_notes(&root, &query).map_err(err)
+}
+
+// ---------------------------------------------------------------------------
+// AI settings
+// ---------------------------------------------------------------------------
+
+#[tauri::command]
+pub fn get_ai_config(state: State<AppState>) -> CmdResult<Option<AiConfig>> {
+    Ok(state.config.lock().unwrap().ai.clone())
+}
+
+#[tauri::command]
+pub fn set_ai_config(
+    app: AppHandle,
+    state: State<AppState>,
+    config: Option<AiConfig>,
+) -> CmdResult<()> {
+    state.config.lock().unwrap().ai = config;
+    persist(&app, &state)
 }

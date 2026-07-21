@@ -24,31 +24,46 @@ export function MetadataBar({
   const { metadata } = note;
   const dateValue = toDateInputValue(metadata.start ?? metadata.createdAt);
 
+  const save =
+    saveState === "saving"
+      ? { label: "Saving…", tone: "text-muted" }
+      : saveState === "dirty"
+        ? { label: "Unsaved", tone: "text-accent" }
+        : { label: "Saved", tone: "text-muted" };
+
   return (
-    <div className="border-b border-gray-800 px-4 py-2 flex flex-col gap-1 bg-gray-800/50">
-      <div className="flex items-center gap-2">
-        <h2 className="flex-1 min-w-0 text-lg font-semibold text-gray-100 truncate">
+    <div className="border-b border-line px-4 py-3 flex flex-col gap-2 bg-surface">
+      <div className="flex items-baseline gap-3">
+        <h2 className="flex-1 min-w-0 font-serif text-xl font-semibold text-ink truncate">
           {noteTitle(note)}
         </h2>
-        <span className="text-xs text-gray-400 whitespace-nowrap">
-          {saveState === "saving"
-            ? "Saving…"
-            : saveState === "dirty"
-              ? "Unsaved"
-              : "Saved"}
+        <span
+          className={
+            "shrink-0 flex items-center gap-1.5 font-mono text-[11px] tracking-tight whitespace-nowrap " +
+            save.tone
+          }
+        >
+          <span
+            className={
+              "inline-block w-1.5 h-1.5 rounded-full " +
+              (saveState === "dirty" ? "bg-accent-soft" : "bg-line-strong")
+            }
+            aria-hidden
+          />
+          {save.label}
         </span>
       </div>
-      <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
-        <span className="px-1.5 py-0.5 rounded bg-gray-700 text-gray-200">
+      <div className="flex items-center gap-3 text-xs text-muted flex-wrap">
+        <span className="eyebrow border border-line-strong rounded px-1.5 py-1">
           {sourceLabel[metadata.source] ?? metadata.source}
         </span>
-        {meetingTypeName && <span>{meetingTypeName}</span>}
+        {meetingTypeName && <span className="text-ink-soft">{meetingTypeName}</span>}
         {metadata.source !== "misc" && (
-          <label className="flex items-center gap-1" title="Change note date">
-            <span>Date</span>
+          <label className="flex items-center gap-1.5" title="Change note date">
+            <span className="eyebrow">Date</span>
             <input
               type="date"
-              className="bg-gray-900 border border-gray-700 text-gray-200 rounded px-1.5 py-0.5 outline-none focus:border-emerald-500"
+              className="bg-surface border border-line-strong text-ink-soft font-mono text-xs rounded px-1.5 py-0.5 outline-none focus:border-accent transition-colors"
               value={dateValue}
               onChange={(e) => onDateChange?.(e.target.value)}
             />

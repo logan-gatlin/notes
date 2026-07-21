@@ -9,74 +9,241 @@ body,
   margin: 0;
 }
 
-/* Dark theme base. */
+/* "The Ledger" — warm paper base, ink text. */
 body {
-  background-color: #0f1512;
-  color: #e5e7eb;
-  color-scheme: dark;
+  background-color: #fbfaf6;
+  color: #191a17;
+  color-scheme: light;
+  font-family: theme("fontFamily.sans");
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* Minimal readable defaults for the preview pane (dark themed, green accents). */
+/* Reusable structural marker: a mono uppercase eyebrow. */
+@layer components {
+  .eyebrow {
+    font-family: theme("fontFamily.mono");
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: theme("letterSpacing.eyebrow");
+    text-transform: uppercase;
+    color: theme("colors.muted");
+  }
+
+  /* Highlighter selection: a soft marker wash with a solid amber spine.
+     The single signature element of the interface. */
+  .marker-wash {
+    background-color: rgb(255 210 77 / 0.34);
+    box-shadow: inset 2px 0 0 0 theme("colors.accent.soft");
+  }
+}
+
+/* Thin, quiet scrollbars that suit the paper aesthetic. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme("colors.line.strong") transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: theme("colors.line.strong");
+  border: 3px solid theme("colors.paper");
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: theme("colors.muted");
+}
+
+/* Visible keyboard focus everywhere, in the accent. */
+:focus-visible {
+  outline: 2px solid theme("colors.accent.DEFAULT");
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Native date input tint. */
+input[type="date"] {
+  color-scheme: light;
+}
+
+/* Reading pane — serif, generous measure, ink on paper. */
+.markdown-preview {
+  font-family: theme("fontFamily.serif");
+  font-size: 15px;
+  line-height: 1.72;
+  color: theme("colors.ink.soft");
+}
+/* In full-width preview, cap the line length and center it for comfortable
+   reading. In the split pane the preview fills the available width instead. */
+.markdown-preview--full {
+  max-width: 72ch;
+  margin-inline: auto;
+}
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3 {
+  font-family: theme("fontFamily.sans");
+  color: theme("colors.ink.DEFAULT");
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
 .markdown-preview h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0.6em 0 0.3em;
+  font-size: 1.6rem;
+  font-weight: 650;
+  margin: 0.8em 0 0.35em;
 }
 .markdown-preview h2 {
   font-size: 1.25rem;
-  font-weight: 700;
-  margin: 0.6em 0 0.3em;
+  font-weight: 600;
+  margin: 1em 0 0.3em;
+  padding-bottom: 0.2em;
+  border-bottom: 1px solid theme("colors.line.DEFAULT");
 }
 .markdown-preview h3 {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 600;
-  margin: 0.6em 0 0.3em;
+  margin: 0.9em 0 0.25em;
 }
 .markdown-preview ul {
   list-style: disc;
-  padding-left: 1.4em;
-  margin: 0.3em 0;
+  padding-left: 1.3em;
+  margin: 0.45em 0;
 }
 .markdown-preview ol {
   list-style: decimal;
-  padding-left: 1.4em;
-  margin: 0.3em 0;
+  padding-left: 1.3em;
+  margin: 0.45em 0;
+}
+.markdown-preview li {
+  margin: 0.2em 0;
 }
 .markdown-preview p {
-  margin: 0.4em 0;
+  margin: 0.55em 0;
 }
 .markdown-preview a {
-  color: #34d399;
+  color: theme("colors.accent.DEFAULT");
   text-decoration: underline;
+  text-underline-offset: 2px;
 }
-.markdown-preview code {
-  background: #1c2621;
-  padding: 0.1em 0.3em;
+/* Inline code: a small warm pill. */
+.markdown-preview :not(pre) > code {
+  font-family: theme("fontFamily.mono");
+  font-size: 0.85em;
+  background: theme("colors.panel");
+  color: theme("colors.ink.DEFAULT");
+  padding: 0.12em 0.35em;
   border-radius: 3px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
 }
+
+/* Fenced code blocks: a light surface framed by a hairline. */
 .markdown-preview pre {
-  background: #1c2621;
-  padding: 0.75em;
-  border-radius: 6px;
+  background: theme("colors.surface");
+  color: theme("colors.ink.soft");
+  border: 1px solid theme("colors.line.DEFAULT");
+  padding: 0.9em 1.05em;
+  border-radius: 8px;
   overflow: auto;
+  margin: 0.8em 0;
+  font-size: 13px;
+  line-height: 1.65;
 }
-.markdown-preview pre code {
+.markdown-preview pre code,
+.markdown-preview code.hl {
+  font-family: theme("fontFamily.mono");
   background: transparent;
   padding: 0;
+  font-size: inherit;
+  color: inherit;
+  white-space: pre;
+}
+
+/* ---- tree-sitter token theme (warm light, matches "The Ledger") ---------- */
+.markdown-preview .hh-comment,
+.markdown-preview .hh-comment-documentation {
+  color: #9a9b8e;
+  font-style: italic;
+}
+.markdown-preview .hh-keyword,
+.markdown-preview .hh-tag,
+.markdown-preview .hh-variable-builtin {
+  color: #b4530c;
+}
+.markdown-preview .hh-string,
+.markdown-preview .hh-string-regexp,
+.markdown-preview .hh-string-special {
+  color: #5e7a2e;
+}
+.markdown-preview .hh-string-escape,
+.markdown-preview .hh-escape {
+  color: #9a6400;
+}
+.markdown-preview .hh-number,
+.markdown-preview .hh-constant,
+.markdown-preview .hh-constant-builtin,
+.markdown-preview .hh-attribute {
+  color: #9a6400;
+}
+.markdown-preview .hh-function,
+.markdown-preview .hh-function-builtin,
+.markdown-preview .hh-function-method,
+.markdown-preview .hh-label {
+  color: #2e6b8a;
+}
+.markdown-preview .hh-type,
+.markdown-preview .hh-type-builtin,
+.markdown-preview .hh-constructor,
+.markdown-preview .hh-module {
+  color: #7a5aa6;
+}
+.markdown-preview .hh-operator,
+.markdown-preview .hh-punctuation,
+.markdown-preview .hh-punctuation-bracket,
+.markdown-preview .hh-punctuation-delimiter,
+.markdown-preview .hh-punctuation-special {
+  color: #8a8c80;
+}
+.markdown-preview .hh-property,
+.markdown-preview .hh-variable,
+.markdown-preview .hh-variable-parameter {
+  color: theme("colors.ink.soft");
 }
 .markdown-preview blockquote {
-  border-left: 3px solid #34d399;
-  padding-left: 0.8em;
-  color: #9ca3af;
-  margin: 0.4em 0;
+  border-left: 3px solid theme("colors.accent.soft");
+  padding-left: 0.9em;
+  color: theme("colors.muted");
+  font-style: italic;
+  margin: 0.6em 0;
 }
 .markdown-preview table {
   border-collapse: collapse;
-  margin: 0.5em 0;
+  margin: 0.7em 0;
+  font-size: 0.92em;
 }
 .markdown-preview th,
 .markdown-preview td {
-  border: 1px solid #374151;
-  padding: 0.3em 0.6em;
+  border: 1px solid theme("colors.line.strong");
+  padding: 0.35em 0.7em;
+  text-align: left;
+}
+.markdown-preview th {
+  background: theme("colors.panel");
+  font-family: theme("fontFamily.sans");
+  font-weight: 600;
+}
+.markdown-preview hr {
+  border: none;
+  border-top: 1px solid theme("colors.line.DEFAULT");
+  margin: 1.2em 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

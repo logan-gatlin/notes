@@ -14,20 +14,99 @@ import {
   indentWithTab,
 } from "@codemirror/commands";
 import { markdown } from "@codemirror/lang-markdown";
+import { languages } from "@codemirror/language-data";
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { tags as t } from "@lezer/highlight";
+
+// Syntax highlighting themed to "The Ledger" (warm paper + ink). Covers both
+// markdown structure and the code tokens inside fenced blocks, so the editor
+// matches the tree-sitter preview theme.
+//
+// The markdown grammar tags structural marks (`#`, `*`, `` ` ``, `-`, `>`) as
+// `processingInstruction`; we keep those quiet and let the content stand out.
+const ledgerHighlight = HighlightStyle.define([
+  // --- Markdown structure --------------------------------------------------
+  { tag: t.heading1, fontWeight: "700", fontSize: "1.35em", color: "#191a17" },
+  { tag: t.heading2, fontWeight: "700", fontSize: "1.2em", color: "#191a17" },
+  { tag: t.heading3, fontWeight: "700", fontSize: "1.08em", color: "#191a17" },
+  {
+    tag: [t.heading4, t.heading5, t.heading6],
+    fontWeight: "700",
+    color: "#191a17",
+  },
+  { tag: t.processingInstruction, color: "#b3a894" },
+  { tag: t.strong, fontWeight: "700", color: "#191a17" },
+  { tag: t.emphasis, fontStyle: "italic", color: "#42443d" },
+  { tag: t.strikethrough, textDecoration: "line-through", color: "#9a9b8e" },
+  { tag: [t.link, t.url], color: "#b4530c", textDecoration: "underline" },
+  { tag: t.quote, color: "#7c7f74", fontStyle: "italic" },
+  { tag: t.list, color: "#42443d" },
+  { tag: t.contentSeparator, color: "#7c7f74" },
+  { tag: t.monospace, color: "#2e6b8a" }, // inline code
+
+  // --- Code tokens inside fenced blocks ------------------------------------
+  { tag: t.comment, color: "#9a9b8e", fontStyle: "italic" },
+  {
+    tag: [
+      t.keyword,
+      t.modifier,
+      t.controlKeyword,
+      t.operatorKeyword,
+      t.moduleKeyword,
+      t.definitionKeyword,
+    ],
+    color: "#b4530c",
+  },
+  { tag: [t.string, t.special(t.string), t.regexp], color: "#5e7a2e" },
+  { tag: t.escape, color: "#9a6400" },
+  {
+    tag: [t.number, t.bool, t.atom, t.constant(t.name), t.literal],
+    color: "#9a6400",
+  },
+  {
+    tag: [t.function(t.variableName), t.function(t.propertyName), t.macroName],
+    color: "#2e6b8a",
+  },
+  {
+    tag: [t.typeName, t.className, t.namespace, t.definition(t.typeName)],
+    color: "#7a5aa6",
+  },
+  {
+    tag: [
+      t.operator,
+      t.punctuation,
+      t.separator,
+      t.bracket,
+      t.angleBracket,
+      t.derefOperator,
+    ],
+    color: "#8a8c80",
+  },
+  { tag: [t.propertyName, t.variableName, t.attributeValue], color: "#42443d" },
+  { tag: [t.attributeName, t.labelName], color: "#9a6400" },
+  { tag: t.tagName, color: "#b4530c" },
+  { tag: t.meta, color: "#7c7f74" },
+  { tag: t.invalid, color: "#a63328" },
+]);
 
 interface NoteEditorProps {
   /** Initial document. The component is expected to be remounted (via `key`)
    *  when switching to a different note. */
   initialValue: string;
   onChange: (value: string) => void;
+  /** Receives the CodeMirror view once created (and `null` on teardown), so a
+   *  parent can read the selection/cursor and dispatch AI edits. */
+  onReady?: (view: EditorView | null) => void;
 }
 
 /** A thin CodeMirror 6 wrapper configured for markdown editing. */
-export function NoteEditor({ initialValue, onChange }: NoteEditorProps) {
+export function NoteEditor({ initialValue, onChange, onReady }: NoteEditorProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
   useEffect(() => {
     if (!hostRef.current) return;
@@ -45,7 +124,8 @@ export function NoteEditor({ initialValue, onChange }: NoteEditorProps) {
         highlightActiveLineGutter(),
         highlightActiveLine(),
         history(),
-        markdown(),
+        markdown({ codeLanguages: languages }),
+        syntaxHighlighting(ledgerHighlight),
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         EditorView.lineWrapping,
         updateListener,
@@ -54,38 +134,42 @@ export function NoteEditor({ initialValue, onChange }: NoteEditorProps) {
             "&": {
               height: "100%",
               fontSize: "14px",
-              backgroundColor: "#0f1512",
-              color: "#e5e7eb",
+              backgroundColor: "#ffffff",
+              color: "#191a17",
             },
             ".cm-content": {
-              caretColor: "#34d399",
+              caretColor: "#b4530c",
+              padding: "12px 4px",
+              lineHeight: "1.6",
               fontFamily:
                 "ui-monospace, SFMono-Regular, Menlo, Monaco, monospace",
             },
-            "&.cm-focused .cm-cursor": { borderLeftColor: "#34d399" },
+            "&.cm-focused .cm-cursor": { borderLeftColor: "#b4530c" },
             "&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
-              { backgroundColor: "#134e3a" },
+              { backgroundColor: "rgba(255, 210, 77, 0.45)" },
             ".cm-gutters": {
-              backgroundColor: "#0f1512",
-              color: "#4b5563",
+              backgroundColor: "#ffffff",
+              color: "#bcbeb4",
               border: "none",
             },
-            ".cm-activeLine": { backgroundColor: "#18211d" },
+            ".cm-activeLine": { backgroundColor: "#fbfaf6" },
             ".cm-activeLineGutter": {
-              backgroundColor: "#18211d",
-              color: "#9ca3af",
+              backgroundColor: "#fbfaf6",
+              color: "#7c7f74",
             },
             ".cm-scroller": { overflow: "auto" },
           },
-          { dark: true },
+          { dark: false },
         ),
       ],
     });
 
     const view = new EditorView({ state, parent: hostRef.current });
     viewRef.current = view;
+    onReadyRef.current?.(view);
 
     return () => {
+      onReadyRef.current?.(null);
       view.destroy();
       viewRef.current = null;
     };

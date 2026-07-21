@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { NoteList } from "./NoteList";
 import { NewNoteModal } from "./NewNoteModal";
 import { NewMeetingTypeModal } from "./NewMeetingTypeModal";
+import { AiSettingsModal } from "./AiSettingsModal";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { ARCHIVE_ID, MISC_ID, useNotesStore } from "../state/notesStore";
 import { useMeetingTypesStore } from "../state/meetingTypesStore";
@@ -26,6 +27,7 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [showNewNote, setShowNewNote] = useState(false);
   const [showNewType, setShowNewType] = useState(false);
+  const [showAiSettings, setShowAiSettings] = useState(false);
   const [typeToDelete, setTypeToDelete] = useState<MeetingType | null>(null);
 
   useEffect(() => {
@@ -65,11 +67,12 @@ export function Sidebar() {
 
   if (collapsed) {
     return (
-      <div className="w-10 shrink-0 border-r border-gray-800 bg-gray-900 flex flex-col items-center py-2">
+      <div className="w-11 shrink-0 border-r border-line bg-panel flex flex-col items-center py-3">
         <button
-          className="p-1.5 rounded text-gray-400 hover:bg-gray-800 hover:text-gray-200"
+          className="p-2 rounded-md text-muted hover:bg-paper hover:text-ink transition-colors"
           onClick={() => setCollapsed(false)}
           title="Expand sidebar"
+          aria-label="Expand sidebar"
         >
           »
         </button>
@@ -78,7 +81,7 @@ export function Sidebar() {
   }
 
   return (
-    <div className="w-64 shrink-0 border-r border-gray-800 bg-gray-900 flex flex-col h-full">
+    <div className="w-64 shrink-0 border-r border-line bg-panel flex flex-col h-full">
       {mode === "selector" ? (
         <SelectorView
           onCollapse={() => setCollapsed(true)}
@@ -86,6 +89,7 @@ export function Sidebar() {
           onOpen={openCategory}
           onNewMeetingType={() => setShowNewType(true)}
           onDeleteMeetingType={setTypeToDelete}
+          onOpenAiSettings={() => setShowAiSettings(true)}
         />
       ) : (
         <ListView
@@ -108,6 +112,9 @@ export function Sidebar() {
       )}
       {showNewType && (
         <NewMeetingTypeModal onClose={() => setShowNewType(false)} />
+      )}
+      {showAiSettings && (
+        <AiSettingsModal onClose={() => setShowAiSettings(false)} />
       )}
       {typeToDelete && (
         <ConfirmDialog
@@ -138,9 +145,10 @@ function IconButton({
 }) {
   return (
     <button
-      className="p-1.5 rounded text-gray-400 hover:bg-gray-800 hover:text-gray-200 leading-none"
+      className="p-1.5 rounded-md text-muted hover:bg-paper hover:text-ink leading-none transition-colors"
       onClick={onClick}
       title={title}
+      aria-label={title}
     >
       {children}
     </button>
@@ -153,6 +161,7 @@ interface SelectorViewProps {
   onOpen: (id: string | null) => void;
   onNewMeetingType: () => void;
   onDeleteMeetingType: (mt: MeetingType) => void;
+  onOpenAiSettings: () => void;
 }
 
 function SelectorView({
@@ -161,11 +170,12 @@ function SelectorView({
   onOpen,
   onNewMeetingType,
   onDeleteMeetingType,
+  onOpenAiSettings,
 }: SelectorViewProps) {
   const item = (id: string | null, label: string) => (
     <button
       key={id ?? "all"}
-      className="w-full text-left px-3 py-1.5 rounded text-sm text-gray-300 hover:bg-gray-800"
+      className="w-full text-left px-3 py-2 rounded-md text-sm text-ink-soft hover:bg-paper hover:text-ink transition-colors"
       onClick={() => onOpen(id)}
     >
       {label}
@@ -174,26 +184,34 @@ function SelectorView({
 
   return (
     <>
-      <div className="flex items-center justify-end px-2 py-2 border-b border-gray-800">
-        <IconButton onClick={onCollapse} title="Collapse sidebar">
-          «
-        </IconButton>
-      </div>
-      <div className="flex flex-col gap-1 p-2 overflow-auto flex-1">
-        {item(null, "All Notes")}
-        <div className="mt-2 mb-1 px-3 text-xs uppercase tracking-wide text-gray-500">
-          Meeting Types
+      <div className="flex items-center justify-between px-3 h-12 border-b border-line">
+        <span className="font-semibold text-ink tracking-tight">Notes</span>
+        <div className="flex items-center gap-0.5">
+          <IconButton onClick={onOpenAiSettings} title="AI settings">
+            ⚙
+          </IconButton>
+          <IconButton onClick={onCollapse} title="Collapse sidebar">
+            «
+          </IconButton>
         </div>
+      </div>
+      <div className="flex flex-col gap-0.5 p-2 overflow-auto flex-1">
+        {item(null, "All Notes")}
+
+        <div className="eyebrow mt-4 mb-1.5 px-3">Meeting Types</div>
         {meetingTypes.map((mt) => (
-          <div key={mt.id} className="group flex items-center rounded hover:bg-gray-800">
+          <div
+            key={mt.id}
+            className="group flex items-center rounded-md hover:bg-paper transition-colors"
+          >
             <button
-              className="flex-1 min-w-0 text-left px-3 py-1.5 text-sm text-gray-300 truncate"
+              className="flex-1 min-w-0 text-left px-3 py-2 text-sm text-ink-soft group-hover:text-ink truncate"
               onClick={() => onOpen(mt.id)}
             >
               {mt.name}
             </button>
             <button
-              className="opacity-0 group-hover:opacity-100 px-2 py-1.5 text-gray-500 hover:text-red-400 leading-none"
+              className="opacity-0 group-hover:opacity-100 px-2.5 py-2 text-muted hover:text-danger leading-none transition-opacity"
               onClick={() => onDeleteMeetingType(mt)}
               title={`Delete "${mt.name}"`}
               aria-label={`Delete ${mt.name}`}
@@ -203,14 +221,13 @@ function SelectorView({
           </div>
         ))}
         <button
-          className="w-full text-left px-3 py-1.5 rounded text-sm text-emerald-400 hover:bg-gray-800"
+          className="w-full text-left px-3 py-2 rounded-md text-sm text-accent font-medium hover:bg-paper transition-colors"
           onClick={onNewMeetingType}
         >
-          + New Meeting Type
+          + New meeting type
         </button>
-        <div className="mt-2 mb-1 px-3 text-xs uppercase tracking-wide text-gray-500">
-          Other
-        </div>
+
+        <div className="eyebrow mt-4 mb-1.5 px-3">Other</div>
         {item(MISC_ID, "Misc Notes")}
         {item(ARCHIVE_ID, "Archive")}
       </div>
@@ -240,24 +257,24 @@ function ListView({
   notes,
 }: ListViewProps) {
   const primaryBtn =
-    "w-full px-3 py-1.5 rounded bg-emerald-600 text-white text-sm hover:bg-emerald-500";
+    "w-full px-3 py-2 rounded-md bg-ink text-paper text-sm font-medium hover:bg-black transition-colors";
   const secondaryBtn =
-    "w-full px-3 py-1.5 rounded border border-gray-700 text-gray-200 text-sm hover:bg-gray-800";
+    "w-full px-3 py-2 rounded-md border border-line-strong text-ink-soft text-sm hover:bg-paper hover:border-muted transition-colors";
 
   const showCreate = filter !== ARCHIVE_ID;
 
   return (
     <>
-      <div className="flex items-center gap-1 px-2 py-1.5 border-b border-gray-800">
+      <div className="flex items-center gap-1 px-2 h-12 border-b border-line">
         <button
-          className="shrink-0 flex items-center gap-1 pl-2 pr-3 py-1.5 rounded text-sm text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+          className="shrink-0 flex items-center gap-1 pl-1.5 pr-2.5 py-1.5 rounded-md text-sm text-ink-soft hover:bg-paper hover:text-ink transition-colors"
           onClick={onBack}
           title="Back to categories"
         >
           <span className="text-lg leading-none">‹</span>
           Back
         </button>
-        <span className="flex-1 min-w-0 truncate text-sm font-medium text-gray-100 text-right">
+        <span className="flex-1 min-w-0 truncate text-sm font-semibold text-ink text-right">
           {label}
         </span>
         <IconButton onClick={onCollapse} title="Collapse sidebar">
@@ -266,33 +283,33 @@ function ListView({
       </div>
 
       {showCreate && (
-        <div className="flex flex-col gap-1 p-2 border-b border-gray-800">
+        <div className="flex flex-col gap-1.5 p-2 border-b border-line">
           {filter === null && (
             <>
               <button className={primaryBtn} onClick={onNewMeetingNote}>
-                + New Meeting Note
+                + New meeting note
               </button>
               <button className={secondaryBtn} onClick={onNewMiscNote}>
-                + New Misc Note
+                + New misc note
               </button>
             </>
           )}
           {filter === MISC_ID && (
             <button className={primaryBtn} onClick={onNewMiscNote}>
-              + New Misc Note
+              + New misc note
             </button>
           )}
           {filter !== null && filter !== MISC_ID && (
             <button className={primaryBtn} onClick={onNewTypedNote}>
-              + New Note
+              + New note
             </button>
           )}
         </div>
       )}
 
-      <div className="p-2 border-b border-gray-800">
+      <div className="p-2 border-b border-line">
         <input
-          className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-500 outline-none focus:border-emerald-500"
+          className="w-full bg-surface border border-line-strong rounded-md px-2.5 py-1.5 text-sm text-ink placeholder-muted outline-none focus:border-accent transition-colors"
           placeholder="Search notes…"
           value={notes.searchQuery}
           onChange={(e) => notes.search(e.target.value)}

@@ -51,6 +51,28 @@ pub struct MeetingType {
     pub name: String,
 }
 
+/// AI integration settings for the Cloudflare AI Gateway.
+///
+/// The gateway sits behind Cloudflare Access (Zero Trust); the only runtime
+/// credential is an Access session JWT obtained via the browser (see the
+/// `access` module in the app crate). Provider (Anthropic) credentials are held
+/// by the gateway itself (Unified Billing / BYOK), so no provider API key is
+/// stored here.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AiConfig {
+    /// Base URL of the Access-protected gateway, up to and including the
+    /// gateway id, e.g. `https://ai-gw.example.com/v1/<account>/<gateway>`.
+    /// The provider path (`/compat/chat/completions`) is appended by the app.
+    pub base_url: String,
+    /// Model identifier, e.g. `anthropic/claude-3-5-sonnet-20241022`.
+    pub model: String,
+    /// Optional AI Gateway token sent as `cf-aig-authorization`. Usually unset
+    /// when the gateway is reached through Cloudflare Access.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gateway_token: Option<String>,
+}
+
 /// Application configuration persisted to `config.json`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
@@ -59,4 +81,6 @@ pub struct Config {
     pub notes_root: Option<String>,
     #[serde(default)]
     pub meeting_types: Vec<MeetingType>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ai: Option<AiConfig>,
 }

@@ -1,6 +1,9 @@
+mod access;
+mod ai;
 mod commands;
 mod config;
 mod fsstore;
+mod highlight;
 mod search;
 mod state;
 
@@ -48,6 +51,13 @@ pub fn run() {
             commands::set_archived,
             commands::delete_note,
             commands::search_notes,
+            commands::get_ai_config,
+            commands::set_ai_config,
+            ai::ai_edit,
+            ai::ai_login,
+            ai::ai_auth_status,
+            ai::ai_list_models,
+            highlight::highlight_code,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

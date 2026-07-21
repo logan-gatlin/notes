@@ -32,11 +32,11 @@ export function NewMeetingTypeModal({ onClose }: Props) {
 
   return (
     <Modal title="New Meeting Type" onClose={onClose}>
-      <div className="flex flex-col gap-3 text-sm">
-        <label className="flex flex-col gap-1">
-          <span className="text-gray-400">Name</span>
+      <div className="flex flex-col gap-4 text-sm">
+        <label className="flex flex-col gap-1.5">
+          <span className="eyebrow">Name</span>
           <input
-            className="bg-gray-900 border border-gray-700 text-gray-100 placeholder-gray-500 rounded px-2 py-1 outline-none focus:border-emerald-500"
+            className="bg-paper border border-line-strong text-ink placeholder-muted rounded-md px-2.5 py-1.5 outline-none focus:border-accent transition-colors"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Weekly Sync"
@@ -44,17 +44,17 @@ export function NewMeetingTypeModal({ onClose }: Props) {
           />
         </label>
 
-        {error && <div className="text-red-400 text-xs">{error}</div>}
+        {error && <div className="text-danger text-xs">{error}</div>}
 
         <div className="flex justify-end gap-2 mt-1">
           <button
-            className="px-3 py-1.5 rounded border border-gray-700 text-gray-200 hover:bg-gray-700"
+            className="px-3 py-1.5 rounded-md border border-line-strong text-ink-soft hover:bg-paper transition-colors"
             onClick={onClose}
           >
             Cancel
           </button>
           <button
-            className="px-3 py-1.5 rounded bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="px-3 py-1.5 rounded-md bg-ink text-paper font-medium hover:bg-black disabled:opacity-50 transition-colors"
             onClick={submit}
             disabled={busy}
           >
